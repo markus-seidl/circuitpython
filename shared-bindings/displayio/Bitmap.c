@@ -291,11 +291,31 @@ STATIC mp_obj_t displayio_bitmap_obj_fill(mp_obj_t self_in, mp_obj_t value_obj) 
 }
 MP_DEFINE_CONST_FUN_OBJ_2(displayio_bitmap_fill_obj, displayio_bitmap_obj_fill);
 
+// -- patch
+
+//|     def fill_from(self, iterable: int iterable) -> None:
+//|         """Fills the bitmap with the values from the iterable."""
+//|         ...
+//|
+
+STATIC mp_obj_t displayio_bitmap_obj_fill_from(mp_obj_t self_in, mp_obj_t iterable) {
+    displayio_bitmap_t *self = MP_OBJ_TO_PTR(self_in);
+
+    common_hal_displayio_bitmap_fill_from(self, iterable);
+
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(displayio_bitmap_fill_from_obj, displayio_bitmap_obj_fill_from);
+
+
+// -- patch
+
 STATIC const mp_rom_map_elem_t displayio_bitmap_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_height), MP_ROM_PTR(&displayio_bitmap_height_obj) },
     { MP_ROM_QSTR(MP_QSTR_width), MP_ROM_PTR(&displayio_bitmap_width_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit), MP_ROM_PTR(&displayio_bitmap_blit_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&displayio_bitmap_fill_obj) },
+    { MP_ROM_QSTR(MP_QSTR_fill_from), MP_ROM_PTR(&displayio_bitmap_fill_from_obj) },
 
 };
 STATIC MP_DEFINE_CONST_DICT(displayio_bitmap_locals_dict, displayio_bitmap_locals_dict_table);
@@ -307,3 +327,4 @@ const mp_obj_type_t displayio_bitmap_type = {
     .subscr = bitmap_subscr,
     .locals_dict = (mp_obj_dict_t*)&displayio_bitmap_locals_dict,
 };
+

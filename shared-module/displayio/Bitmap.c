@@ -131,6 +131,39 @@ void common_hal_displayio_bitmap_blit(displayio_bitmap_t *self, int16_t x, int16
     }
 }
 
+void common_hal_displayio_bitmap_fill_from(displayio_bitmap_t *self, mp_obj_t iterable) {
+    // assume an iterable that gives you the palette indexes for each pixel.
+    if (self->read_only) {
+        mp_raise_RuntimeError(translate("Read-only object"));
+    }
+
+    uint16_t x = 0;
+    uint16_t y = 0;
+    uint16_t width = self->width;
+    uint16_t height = self->height;
+
+    mp_int_t temp;
+
+    mp_obj_iter_buf_t x_buf;
+    mp_obj_t item, iterator = mp_getiter(iterable, &x_buf);
+    while ((item = mp_iternext(iterator)) != MP_OBJ_STOP_ITERATION) {
+        temp = mp_obj_get_int(item);
+
+        common_hal_displayio_bitmap_set_pixel(self, x, y, temp);
+
+        x++;
+        if (x >= width) {
+            x = 0;
+            y++;
+        }
+        if (y >= height) {
+            break;
+        }
+    }
+
+    // TODO return something if iterable is longer than the display?
+}
+
 void common_hal_displayio_bitmap_set_pixel(displayio_bitmap_t *self, int16_t x, int16_t y, uint32_t value) {
     if (self->read_only) {
         mp_raise_RuntimeError(translate("Read-only object"));
@@ -209,3 +242,5 @@ void common_hal_displayio_bitmap_fill(displayio_bitmap_t *self, uint32_t value) 
         self->data[i] = word;
     }
 }
+
+
